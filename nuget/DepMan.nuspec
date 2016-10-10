@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Rosenbjerg.DepMan</id>
+    <version>1.1.2.0</version>
+    <title>DepMan - Cross-platform Dependency Manager</title>
+    <authors>Malte Rosenbjerg</authors>
+    <owners>Rosenbjerg Softworks</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/rosenbjerg/DepMan</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>
+DepMan is a dependency manager for cross-platform projects, like Xamarin, where some dependencies have to be injected.
+DepMan supports two patterns: the ImplementsAttribute-&gt;Init-&gt;Get pattern, and the Register-&gt;Get pattern.
+	</description>
+	<summary>
+DepMan has a very simple interface; Init(), Get&lt;TInterface&gt;() and Register&lt;TInterface,TImplementor&gt;();
+DepMan supports two patterns: the ImplementsAttribute-&gt;Init-&gt;Get pattern, and the Register-&gt;Get pattern.
+You don't need to use the Register method if you decorate the implementing class with the [Implements(..)] attribute, and 
+DepMan creates only one instance of any class registered, which ensures that memory isn't wasted on multiple instances. 
+The Get method performs a fast lookup (O(1)) and returns the registered class (if any, otherwise throws exception).
+The 'Implements' attribute can be used to automatically register a class using the interface it implements as key.
+	</summary>
+    <releaseNotes>Fixed targets</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>xamarin dependency manager service dependencies cross-platform DepMan</tags>
+  </metadata>
+  <files>
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.xml" target="lib\net45" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.xml" target="lib\Xamarin.Mac20" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.xml" target="lib\Xamarin.iOS10" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.xml" target="lib\MonoAndroid10" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.xml" target="lib\MonoTouch10" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.dll" target="lib\net45" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.dll" target="lib\Xamarin.Mac20" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.dll" target="lib\Xamarin.iOS10" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.dll" target="lib\MonoAndroid10" />
+    <file src="..\DepMan\bin\Release\Rosenbjerg.DepMan.dll" target="lib\MonoTouch10" />
+  </files>
+</package>
