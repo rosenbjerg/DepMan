@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Rosenbjerg.DepMan
 {
     public static class DependencyManager
     {
         /// <summary>
-        /// Initialize the DependecyManager. Must be called before using Get method.
-        /// The Register method will automatically initialize, but without looking for Implements attribute.
+        /// Initialize the DependecyManager. Must be called before using Get method.<br/>
+        /// The Register method will automatically initialize, but without looking for Implements attribute.<br/>
         /// Either use the ImplementsAttribute->Init->Get pattern, or the Register->Get pattern.
         /// </summary>
         /// <param name="findUsingAttribute">Set to false if you do not want use reflection to look for classes marked with Implements attribute.</param>
@@ -19,12 +20,12 @@ namespace Rosenbjerg.DepMan
                 if (_initialized)
                     throw new DependencyManagerException("DependencyManager is already initialized. Only call this method once");
                 _initialized = true;
-                _map = new ConcurrentDictionary<Type, Implementor>();
+                _map = new ConcurrentDictionary<Type, IImplementor>();
             }
             if (findUsingAttribute) ReflectionLoad();
         }
 
-        private static ConcurrentDictionary<Type, Implementor> _map;
+        private static ConcurrentDictionary<Type, IImplementor> _map;
         private static bool _initialized;
         private static readonly object _lock = new object();
 
@@ -40,17 +41,20 @@ namespace Rosenbjerg.DepMan
                     var attr = (impl.GetCustomAttributes(false).First() as ImplementsAttribute);
                     var type = attr.IntefaceType;
                     if (!type.IsAssignableFrom(impl)) throw new DependencyManagerException(
-                        string.Format("The class {0} does not implement {1}.", impl.Name, type.Name));
+                        $"The class {impl.Name} does not implement {type.Name}.");
                     if (_map.ContainsKey(type)) throw new DependencyManagerException(
-                        string.Format("{0} already registered!", type.Name));
-                    if (attr.InitOnRegister)
+                        $"{type.Name} already registered!");
+                    if (!attr.SingleInstance)
                     {
-                        var obj = Activator.CreateInstance(impl);
-                        _map.TryAdd(type, new Implementor(obj, attr.SingleInstance));
+                        _map.TryAdd(type, new FactoryImpl(impl));
+                    }
+                    else if (attr.InitOnRegister)
+                    {
+                        _map.TryAdd(type, new EagerSingletonImpl(impl));
                     }
                     else
                     {
-                        _map.TryAdd(type, new Implementor(impl, attr.SingleInstance));
+                        _map.TryAdd(type, new LazySingletonImpl(impl));
                     }
                 }
             }
@@ -58,47 +62,61 @@ namespace Rosenbjerg.DepMan
 
 
         /// <summary>
-        /// Method to register a platform specific class to interface type.
-        /// Calling this method before initializing, will call Init(false) automatically
+        /// Method to register a platform specific class to interface type.<br/>
+        /// Calling this method before initializing, will call Init(false) automatically<br/>
         /// Only use this method if the class does NOT have 'Implements' attribute 
         /// </summary>
         /// <typeparam name="TInterface">The interface that is implemented, and also the retrievement-key</typeparam>
         /// <typeparam name="TImplentor">The class that implements the interface</typeparam>
-        public static void Register<TInterface, TImplentor>(bool initOnRegister = true, bool singleInstance = true)
+        public static bool Register<TInterface, TImplentor>(bool initOnRegister = true, bool singleInstance = true)
             where TImplentor : class, TInterface, new()
         {
             if (!_initialized) Init(false);
             if (_map.ContainsKey(typeof(TInterface)))
-                throw new DependencyManagerException(string.Format("{0} already registered!", typeof(TInterface).Name));
-
+                throw new DependencyManagerException($"{typeof(TInterface).Name} already registered!");
+            if (!singleInstance)
+            {
+                var impl = new FactoryImpl(typeof(TImplentor));
+                return _map.TryAdd(typeof(TInterface), impl);
+            }
             if (initOnRegister)
             {
-                var impl = new Implementor(new TImplentor(), singleInstance);
-                _map.TryAdd(typeof(TInterface), impl);
+                var impl = new EagerSingletonImpl(new TImplentor());
+                return _map.TryAdd(typeof(TInterface), impl);
             }
             else
             {
-                var impl = new Implementor(typeof(TImplentor), singleInstance);
-                _map.TryAdd(typeof(TInterface), impl);
+                var impl = new LazySingletonImpl(typeof(TImplentor));
+                return _map.TryAdd(typeof(TInterface), impl);
             }
         }
 
         /// <summary>
-        /// Method to register a specific class to interface type.
+        /// Method to register a specific class to interface type. <br/>
         /// This overload does not require the implementing class to have an parameterless constructor,
         /// but takes an instance of the class as parameter.
         /// </summary>
         /// <typeparam name="TInterface">The interface that is implemented, and also the retrievement-key</typeparam>
         /// <typeparam name="TImplentor">The class that implements the interface</typeparam>
         /// <param name="instance">An instance of the implementing class, so you can use constructor with parameters</param>
-        public static void Register<TInterface, TImplentor>(TImplentor instance, bool singleInstance = true)
+        public static bool Register<TInterface, TImplentor>(TImplentor instance)
             where TImplentor : class, TInterface
         {
             if (!_initialized) Init(false);
             if (_map.ContainsKey(typeof(TInterface)))
-                throw new DependencyManagerException(string.Format("{0} already registered!", typeof(TInterface).Name));
+                throw new DependencyManagerException($"{typeof(TInterface).Name} already registered!");
+            return _map.TryAdd(typeof(TInterface), new EagerSingletonImpl(instance));
+        }
 
-            _map.TryAdd(typeof(TInterface), new Implementor(instance, singleInstance));
+        /// <summary>
+        /// Check whether an instance is registered to specific interface.<br/>
+        /// This might be needed in some very specific cases
+        /// </summary>
+        /// <typeparam name="TInterface">The interface to look for</typeparam>
+        /// <returns></returns>
+        public static bool IsRegistered<TInterface>()
+        {
+            return _map.ContainsKey(typeof(TInterface));
         }
 
         /// <summary>
@@ -110,35 +128,65 @@ namespace Rosenbjerg.DepMan
         {
             if (!_initialized)
                 throw new DependencyManagerException("DependencyManager is not initialized. Call Init method");
-            Implementor obj;
+            IImplementor obj;
             if (!_map.TryGetValue(typeof(TInterface), out obj)) throw new DependencyManagerException(
-                string.Format("{0} not registered!", typeof(TInterface).Name));
+                $"{typeof(TInterface).Name} not registered!");
             return (TInterface)obj.Get();
         }
 
-        internal class Implementor
+        internal interface IImplementor
         {
-            private object _obj;
-            private readonly Type _type;
-            private readonly bool _singleInstance;
+            object Get();
+        }
 
-            public Implementor(object obj, bool singleInstance)
+        internal class EagerSingletonImpl : IImplementor
+        {
+            private readonly object _obj;
+
+            public EagerSingletonImpl(object obj)
             {
                 _obj = obj;
-                _type = obj.GetType();
-                _singleInstance = singleInstance;
             }
 
-            public Implementor(Type timplementor, bool singleInstance)
+            public EagerSingletonImpl(Type objType)
             {
-                _type = timplementor;
-                _singleInstance = singleInstance;
+                _obj = Activator.CreateInstance(objType);
             }
 
             public object Get()
             {
-                if (!_singleInstance || _obj == null) _obj = Activator.CreateInstance(_type);
                 return _obj;
+            }
+        }
+
+        internal class LazySingletonImpl : IImplementor
+        {
+            private object _obj;
+            private readonly Type _type;
+
+            public LazySingletonImpl(Type objType)
+            {
+                _type = objType;
+            }
+
+            public object Get()
+            {
+                return _obj ?? (_obj = Activator.CreateInstance(_type));
+            }
+        }
+
+        internal class FactoryImpl : IImplementor
+        {
+            private readonly Type _type;
+
+            public FactoryImpl(Type objType)
+            {
+                _type = objType;
+            }
+
+            public object Get()
+            {
+                return Activator.CreateInstance(_type);
             }
         }
     }
