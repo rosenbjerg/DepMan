@@ -7,8 +7,8 @@
     <ProjectGuid>{FCFED1BF-E705-476F-9C71-F39305C5C58B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Rosenbjerg.DepMan</RootNamespace>
-    <AssemblyName>Rosenbjerg.DepMan</AssemblyName>
+    <RootNamespace>DepMan</RootNamespace>
+    <AssemblyName>DepMan</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -20,7 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Rosenbjerg.DepMan.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\DepMan.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,7 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Rosenbjerg.DepMan.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\DepMan.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

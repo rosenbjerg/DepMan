@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DepMan", "DepMan\DepMan.csproj", "{FCFED1BF-E705-476F-9C71-F39305C5C58B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyManager", "DependencyManager\DependencyManager.csproj", "{57AD72EA-F5C1-4CC9-B785-CAE190C4CE3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{FCFED1BF-E705-476F-9C71-F39305C5C58B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCFED1BF-E705-476F-9C71-F39305C5C58B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCFED1BF-E705-476F-9C71-F39305C5C58B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57AD72EA-F5C1-4CC9-B785-CAE190C4CE3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57AD72EA-F5C1-4CC9-B785-CAE190C4CE3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57AD72EA-F5C1-4CC9-B785-CAE190C4CE3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57AD72EA-F5C1-4CC9-B785-CAE190C4CE3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {498BB5F7-AAA6-4AA5-AD9A-2028D0042888}
 	EndGlobalSection
 EndGlobal

@@ -17,7 +17,7 @@ namespace DepMan
         /// <param name="findUsingAttribute">Set to false if you do not want use reflection to look for classes marked with Implements attribute.</param>
         public static void Init(bool findUsingAttribute = true)
         {
-            lock (_lock)
+            lock (_initLock)
             {
                 if (_initialized)
                     throw new DependencyManagerException("DependencyManager is already initialized. Only call this method once");
@@ -29,7 +29,7 @@ namespace DepMan
 
         private static ConcurrentDictionary<Type, IImplementor> _map;
         private static bool _initialized;
-        private static readonly object _lock = new object();
+        private static readonly object _initLock = new object();
 
         private static void ReflectionLoad()
         {
