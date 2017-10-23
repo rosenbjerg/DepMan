@@ -115,6 +115,17 @@ namespace DepMan
         {
             return _map != null && _map.ContainsKey(typeof(TInterface));
         }
+        /// <summary>
+        /// Check whether an instance is registered to specific interface.<br/>
+        /// This might be needed in some very specific cases
+        /// </summary>
+        /// <typeparam name="TInterface">The interface to look for</typeparam>
+        /// <param name="type">An object whose type will be used for the lookup</param>
+        /// <returns></returns>
+        public static bool IsRegistered<TInterface>(TInterface type)
+        {
+            return _map != null && _map.ContainsKey(typeof(TInterface));
+        }
 
         /// <summary>
         /// Retrieve registered object based on interface
@@ -125,8 +136,21 @@ namespace DepMan
         {
             if (!_initialized)
                 throw new DependencyManagerException("DependencyManager is not initialized. Call Init method");
-            IImplementor obj;
-            if (!_map.TryGetValue(typeof(TInterface), out obj)) throw new DependencyManagerException(
+            if (!_map.TryGetValue(typeof(TInterface), out var obj)) throw new DependencyManagerException(
+                $"{typeof(TInterface).Name} not registered!");
+            return (TInterface)obj.Get();
+        }
+        /// <summary>
+        /// Retrieve registered object based on interface
+        /// </summary>
+        /// <typeparam name="TInterface">The interface of the class wanted</typeparam>  
+        /// <param name="type">An object whose type will be used for the lookup</param>
+        /// <returns></returns>
+        public static TInterface Get<TInterface>(TInterface type)
+        {
+            if (!_initialized)
+                throw new DependencyManagerException("DependencyManager is not initialized. Call Init method");
+            if (!_map.TryGetValue(typeof(TInterface), out var obj)) throw new DependencyManagerException(
                 $"{typeof(TInterface).Name} not registered!");
             return (TInterface)obj.Get();
         }

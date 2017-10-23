@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.2.1</Version>
+    <Version>1.2.3</Version>
     <PackageId>Rosenbjerg.DepMan</PackageId>
     <Authors>Malte Rosenbjerg</Authors>
     <Company>Rosenbjerg Softworks</Company>
@@ -13,7 +13,7 @@ DepMan supports two patterns: the ImplementsAttribute-&gt;Init-&gt;Get pattern, 
     <PackageProjectUrl>https://github.com/rosenbjerg/DepMan</PackageProjectUrl>
     <Copyright>2017</Copyright>
     <PackageTags>xamarin dependency manager service threadsafe dependencies cross-platform DepMan</PackageTags>
-    <PackageReleaseNotes>Changed target to NET Standard</PackageReleaseNotes>
+    <PackageReleaseNotes>Added secondary Get method</PackageReleaseNotes>
     <RootNamespace>DepMan</RootNamespace>
     <AssemblyName>DepMan</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
